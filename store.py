@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from products import Product  # Importing the Product class from products.py
+from products import Product
 
 
 class Store:
@@ -33,8 +33,6 @@ class Store:
 
 # Example usage
 if __name__ == "__main__":
-    from products import Product  # Ensure Product is imported in the example usage
-
     product_list = [
         Product("MacBook Air M2", price=1450, quantity=100),
         Product("Bose QuietComfort Earbuds", price=250, quantity=500),
