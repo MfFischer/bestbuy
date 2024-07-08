@@ -5,13 +5,21 @@ import store
 product_list = [
     products.Product("MacBook Air M2", price=1450, quantity=100),
     products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-    products.Product("Google Pixel 7", price=500, quantity=250)
+    products.Product("Google Pixel 7", price=500, quantity=250),
+    products.NonStockedProduct("Windows License", price=125),
+    products.LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
 ]
 
 best_buy = store.Store(product_list)
 
 
 def start(store):
+    """
+    Starts the user interface for the store.
+
+    Args:
+        store (Store): The store object containing products.
+    """
     while True:
         print("""
         Store Menu
@@ -24,6 +32,7 @@ def start(store):
         choice = input("Please choose a number: ")
 
         if choice == '1':
+            # List all products in the store
             products = store.get_all_products()
             print("------")
             for idx, product in enumerate(products, 1):
@@ -31,10 +40,12 @@ def start(store):
             print("------")
 
         elif choice == '2':
+            # Show the total quantity of all products in the store
             total_quantity = store.get_total_quantity()
             print(f"Total amount in store: {total_quantity}")
 
         elif choice == '3':
+            # Make an order
             shopping_list = []
             while True:
                 products = store.get_all_products()
@@ -42,30 +53,58 @@ def start(store):
                     print(f"{idx}. {product.show()}")
 
                 try:
-                    product_choice = int(input("Select the product number to buy (0 to finish): "))
+                    product_choice = int(input("Select the product number to buy or enter '0' to exit: "))
                     if product_choice == 0:
-                        break
+                        break  # Exit the product selection loop
                     if not (1 <= product_choice <= len(products)):
                         print("Invalid product number, please try again.")
                         continue
 
                     product = products[product_choice - 1]
-                    quantity = int(input(f"Enter quantity for {product.name}: "))
-                    if quantity <= 0:
-                        print("Quantity must be greater than zero.")
-                        continue
+                    while True:
+                        try:
+                            quantity = int(
+                                input(f"Enter quantity for {product.name} (available: {product.get_quantity()}): "))
+                            if quantity <= 0:
+                                print("Quantity must be greater than zero.")
+                                continue
 
-                    shopping_list.append((product, quantity))
+                            # Try to buy the product to check if the quantity is available
+                            product.buy(quantity)
+                            shopping_list.append((product, quantity))
+                            break  # Exit the quantity input loop on successful purchase
+                        except ValueError:
+                            print("Invalid input, please enter a number.")
+                        except Exception as e:
+                            print(f"Error: {e}. Available quantity: {product.get_quantity()}")
+
                 except ValueError:
                     print("Invalid input, please enter a number.")
 
-            try:
-                total_price = store.order(shopping_list)
-                print(f"Order placed successfully. Total price: ${total_price}")
-            except Exception as e:
-                print(f"Error: {e}")
+            if shopping_list:
+                try:
+                    # Place the order and display the total price
+                    total_price = store.order(shopping_list)
+                    print(f"Order placed successfully. Total price: ${total_price}")
+                except Exception as e:
+                    print(f"Error: {e}")
+
+            # Ask user if they want to go back to the menu
+            while True:
+                back_to_menu = input("Do you want to go back to the menu? (yes/no): ").strip().lower()
+                if back_to_menu in ["yes", "no"]:
+                    break
+                else:
+                    print("Invalid input, please type 'yes' or 'no'.")
+
+            if back_to_menu == "yes":
+                continue
+            else:
+                print("Goodbye!")
+                break
 
         elif choice == '4':
+            # Quit the program
             print("Goodbye!")
             break
 
