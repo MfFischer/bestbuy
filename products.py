@@ -122,4 +122,5 @@ class LimitedProduct(Product):
         Show the product details, including the promotion if it exists.
         """
         promotion_info = f", Promotion: {self.promotion.name}" if self.promotion else ""
-        return f"{self.name} (Limited, Max {self.maximum} per order), Price: {self.price}, Quantity: {self.quantity}{promotion_info}"
+        return (f"{self.name} (Limited, Max {self.maximum} per order), "
+                f"Price: {self.price}, Quantity: {self.quantity}{promotion_info}")
