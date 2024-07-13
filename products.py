@@ -78,25 +78,33 @@ class Product:
 
 
 class NonStockedProduct(Product):
-    """
-    Represents a non-stocked product. Quantity is always zero.
-    """
+    """Represents a product that does not have stock quantity."""
 
     def __init__(self, name, price):
-        super().__init__(name, price, quantity=0)
+        """Initialize the non-stocked product with name and price."""
+        super().__init__(name, price, 0)  # Set quantity to 0
 
-    def set_quantity(self, quantity):
-        """
-        Override set_quantity to ensure quantity is always zero.
-        """
-        self.quantity = 0  # Quantity is always zero for non-stocked products
+    @property
+    def quantity(self):
+        """Return an infinite quantity for non-stocked products."""
+        return float('inf')
 
-    def show(self) -> str:
-        """
-        Show the product details, including the promotion if it exists.
-        """
-        promotion_info = f", Promotion: {self.promotion.name}" if self.promotion else ""
-        return f"{self.name} (Non-Stocked), Price: {self.price}{promotion_info}"
+    @quantity.setter
+    def quantity(self, value):
+        """Do nothing since quantity is always infinite."""
+        pass
+
+    def buy(self, quantity):
+        """Process the purchase of a non-stocked product."""
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than zero")
+        if self.promotion:  # Use the property method for promotion
+            return self.promotion.apply_promotion(self, quantity)
+        return self.price * quantity
+
+    def __str__(self):
+        """Return a string representation of the non-stocked product."""
+        return f"{self.name}, Price: ${self.price} (Non-stocked product)"
 
 
 class LimitedProduct(Product):
